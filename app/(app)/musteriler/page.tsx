@@ -1,21 +1,26 @@
-import { PageHeader, EmptyState } from '@/components/empty-state'
-import { Users } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
+import type { Customer } from '@/lib/types'
+import { CustomersView } from './customers-view'
 
-export default function MusterilerPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function MusterilerPage() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  const setupError = error && (error.code === 'PGRST205' || /relation .*customers/i.test(error.message))
+    ? "Supabase'de \"customers\" tablosu bulunamadı. Lütfen supabase/migrations/001_customers.sql dosyasını Supabase SQL Editor'de çalıştırın."
+    : null
+
   return (
-    <div>
-      <PageHeader
-        breadcrumb="Müşteri Yönetimi"
-        title="Müşteriler"
-        description="Müşterilerinizi ekleyin, düzenleyin ve iletişim bilgilerini yönetin."
-        actionLabel="+ Yeni Müşteri"
-      />
-      <EmptyState
-        icon={Users}
-        title="Henüz müşteri eklenmedi"
-        description="İlk müşterinizi ekleyerek başlayın. Kurumsal ve bireysel müşterilerinizi tek yerden yönetebilirsiniz."
-        actionLabel="İlk Müşteriyi Ekle"
-      />
-    </div>
+    <CustomersView
+      customers={(data ?? []) as Customer[]}
+      setupError={setupError}
+      loadError={!setupError && error ? error.message : null}
+    />
   )
 }
