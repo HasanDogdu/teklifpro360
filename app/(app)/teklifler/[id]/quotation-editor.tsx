@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import type { Quotation, QuotationItem, Product, Customer, Currency } from '@/lib/types'
+import type { Quotation, QuotationItem, Product, Customer, Currency, CompanySettings } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +20,7 @@ import {
   Calendar, Clock, Package, Star, Check,
 } from 'lucide-react'
 import { saveQuotationItems } from '@/app/actions/quotations'
+import { PdfDownloadButton } from './pdf-download-button'
 import { cn } from '@/lib/utils'
 
 type Row = {
@@ -39,6 +40,7 @@ type Props = {
   initialItems: QuotationItem[]
   products: Product[]
   customer: Customer | null
+  company: CompanySettings | null
 }
 
 function toRow(it: QuotationItem): Row {
@@ -69,7 +71,7 @@ function newRow(defaults: { vat_rate: number }): Row {
   }
 }
 
-export function QuotationEditor({ quotation, initialItems, products, customer }: Props) {
+export function QuotationEditor({ quotation, initialItems, products, customer, company }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [rows, setRows] = useState<Row[]>(() => initialItems.map(toRow))
@@ -170,6 +172,13 @@ export function QuotationEditor({ quotation, initialItems, products, customer }:
               Kaydedilmemiş
             </span>
           )}
+          <PdfDownloadButton
+            quotation={quotation}
+            items={initialItems}
+            company={company}
+            customer={customer}
+            disabled={dirty}
+          />
           <Button onClick={handleSave} disabled={isPending} className="h-10 shadow-sm shadow-primary/20">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Kaydet
