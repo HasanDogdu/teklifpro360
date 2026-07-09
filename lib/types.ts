@@ -46,8 +46,6 @@ export type CompanySettings = {
   updated_at: string
 }
 
-export type CompanySettingsInput = Omit<CompanySettings, 'id' | 'owner_id' | 'created_at' | 'updated_at'>
-
 export type Product = {
   id: string
   owner_id: string
@@ -62,4 +60,48 @@ export type Product = {
   updated_at: string
 }
 
-export type ProductInput = Omit<Product, 'id' | 'owner_id' | 'created_at' | 'updated_at'>
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
+
+export type Quotation = {
+  id: string
+  owner_id: string
+  quote_number: string
+  customer_id: string | null
+  customer_snapshot: any | null
+  issue_date: string
+  valid_until: string | null
+  status: QuotationStatus
+  currency: Currency
+  vat_rate: number
+  payment_terms: string | null
+  footer_notes: string | null
+  subtotal: number
+  vat_amount: number
+  discount_amount: number
+  total: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type QuotationWithCustomer = Quotation & {
+  customers: Pick<Customer, 'id' | 'company_name' | 'contact_name'> | null
+}
+
+export type QuotationItem = {
+  id: string
+  owner_id: string
+  quotation_id: string
+  product_id: string | null
+  position: number
+  product_code: string | null
+  description: string
+  unit: string
+  quantity: number
+  unit_price: number
+  discount_rate: number
+  vat_rate: number
+  line_total: number
+  created_at: string
+  updated_at: string
+}

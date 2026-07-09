@@ -1,21 +1,33 @@
-import { PageHeader, EmptyState } from '@/components/empty-state'
-import { FileText } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
+import type { QuotationWithCustomer, Customer } from '@/lib/types'
+import { QuotationsView } from './quotations-view'
 
-export default function TekliflerPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function TekliflerPage() {
+  const supabase = await createClient()
+
+  const [{ data: quotationsData, error: qErr }, { data: customersData }] = await Promise.all([
+    supabase
+      .from('quotations')
+      .select('*, customers(id, company_name, contact_name)')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('customers')
+      .select('id, company_name, contact_name, email, phone, tax_office, tax_number, address, city, district')
+      .order('company_name', { ascending: true }),
+  ])
+
+  const setupError = qErr && (qErr.code === 'PGRST205' || /relation .*quotations/i.test(qErr.message))
+    ? "Supabase'de \"quotations\" tablosu bulunamadı. Lütfen supabase/migrations/004_quotations.sql dosyasını Supabase SQL Editor'de çalıştırın."
+    : null
+
   return (
-    <div>
-      <PageHeader
-        breadcrumb="Teklif Yönetimi"
-        title="Teklifler"
-        description="Müşterilerinize gönderdiğiniz tüm teklifleri buradan yönetin."
-        actionLabel="+ Yeni Teklif"
-      />
-      <EmptyState
-        icon={FileText}
-        title="Henüz teklif oluşturulmadı"
-        description="İlk profesyonel teklifinizi hazırlayarak müşterilerinize gönderin. PDF olarak dışa aktarabilir ve durumlarını takip edebilirsiniz."
-        actionLabel="İlk Teklifi Oluştur"
-      />
-    </div>
+    <QuotationsView
+      quotations={(quotationsData ?? []) as QuotationWithCustomer[]}
+      customers={(customersData ?? []) as Customer[]}
+      setupError={setupError}
+      loadError={!setupError && qErr ? qErr.message : null}
+    />
   )
 }
