@@ -84,9 +84,9 @@ export function CustomersView({ customers, setupError, loadError }: Props) {
               <h3 className="font-semibold text-amber-900">Veritabanı kurulumu gerekli</h3>
               <p className="mt-1 text-sm text-amber-800">{setupError}</p>
               <ol className="mt-3 space-y-1.5 text-sm text-amber-900 list-decimal list-inside">
-                <li>Supabase Dashboard'a gidin → <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded">SQL Editor</span></li>
+                <li>Supabase Dashboard&apos;a gidin → <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded">SQL Editor</span></li>
                 <li>Projedeki <span className="font-mono text-xs bg-amber-100 px-1.5 py-0.5 rounded">supabase/migrations/001_customers.sql</span> dosyasının içeriğini kopyalayın</li>
-                <li>SQL Editor'e yapıştırıp <b>Run</b> deyin</li>
+                <li>SQL Editor&apos;e yapıştırıp <b>Run</b> deyin</li>
                 <li>Bu sayfayı yenileyin</li>
               </ol>
             </div>
