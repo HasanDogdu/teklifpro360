@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 import { QuotationDraftDialog } from './quotation-draft-dialog'
 import { deleteQuotation } from '@/app/actions/quotations'
-
 type Props = {
   quotations: QuotationWithCustomer[]
   customers: Customer[]
@@ -168,7 +167,7 @@ export function QuotationsView({ quotations, customers, setupError, loadError }:
                     filtered.map((q) => {
                       const meta = STATUS_META[q.status]
                       return (
-                        <TableRow key={q.id} className="group">
+                        <TableRow key={q.id} className="cursor-pointer group" onClick={() => router.push(`/teklifler/${q.id}`)}>
                           <TableCell>
                             <span className="font-mono text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded">{q.quote_number}</span>
                           </TableCell>
@@ -207,7 +206,7 @@ export function QuotationsView({ quotations, customers, setupError, loadError }:
                               {meta.label}
                             </Badge>
                           </TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 opacity-60 group-hover:opacity-100">
@@ -215,9 +214,9 @@ export function QuotationsView({ quotations, customers, setupError, loadError }:
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
-                                <DropdownMenuItem disabled className="text-muted-foreground">
+                                <DropdownMenuItem onClick={() => router.push(`/teklifler/${q.id}`)}>
                                   <FileText className="mr-2 h-4 w-4" />
-                                  Düzenle (yakında)
+                                  Düzenle
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem

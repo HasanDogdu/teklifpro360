@@ -15,10 +15,6 @@ export type QuotationActionResult =
   | { ok: true; id: string; quote_number: string }
   | { ok: false; error: string }
 
-/**
- * Generate next quote number for the current user, format: TKL-YYYY-NNNN
- * Numbering resets each year and is per-owner.
- */
 export async function suggestQuoteNumber(): Promise<{ ok: true; quote_number: string } | { ok: false; error: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -27,7 +23,6 @@ export async function suggestQuoteNumber(): Promise<{ ok: true; quote_number: st
   const year = new Date().getFullYear()
   const prefix = `TKL-${year}-`
 
-  // Fetch existing quote numbers for this year, extract max suffix
   const { data, error } = await supabase
     .from('quotations')
     .select('quote_number')
@@ -55,24 +50,19 @@ export async function createDraftQuotation(input: Record<string, any>): Promise<
     valid_until: input.valid_until || null,
     quote_number: (input.quote_number ?? '').trim(),
   })
-  if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message || 'Geçersiz veri' }
-  }
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message || 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'Oturum bulunamadı' }
 
-  // Pull customer for snapshot
   const { data: customer } = await supabase
     .from('customers')
     .select('id, company_name, contact_name, email, phone, tax_office, tax_number, address, city, district')
     .eq('id', parsed.data.customer_id)
     .maybeSingle()
-
   if (!customer) return { ok: false, error: 'Müşteri bulunamadı' }
 
-  // Pull defaults from company_settings (currency, vat, payment terms, footer)
   const { data: settings } = await supabase
     .from('company_settings')
     .select('default_currency, default_vat_rate, default_payment_terms, quotation_footer_notes')
@@ -97,9 +87,7 @@ export async function createDraftQuotation(input: Record<string, any>): Promise<
     .single()
 
   if (error) {
-    if (error.code === '23505') {
-      return { ok: false, error: 'Bu teklif numarası zaten kullanılıyor. Lütfen farklı bir numara girin.' }
-    }
+    if (error.code === '23505') return { ok: false, error: 'Bu teklif numarası zaten kullanılıyor.' }
     return { ok: false, error: error.message }
   }
 
@@ -112,9 +100,113 @@ export async function deleteQuotation(id: string): Promise<{ ok: true } | { ok: 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'Oturum bulunamadı' }
-
   const { error } = await supabase.from('quotations').delete().eq('id', id)
   if (error) return { ok: false, error: error.message }
   revalidatePath('/teklifler')
+  return { ok: true }
+}
+
+// ============================================================
+// STEP 2 — Item management + totals
+// ============================================================
+
+const ItemSchema = z.object({
+  product_id: z.string().uuid().nullable().optional(),
+  product_code: z.string().max(100).nullable().optional(),
+  description: z.string().max(1000).default(''),
+  unit: z.string().max(50).default('adet'),
+  quantity: z.coerce.number().min(0).max(9999999),
+  unit_price: z.coerce.number().min(0).max(999999999),
+  discount_rate: z.coerce.number().min(0).max(100).default(0),
+  vat_rate: z.coerce.number().min(0).max(100).default(20),
+})
+
+function round2(n: number) { return Math.round((n + Number.EPSILON) * 100) / 100 }
+
+export async function saveQuotationItems(quotationId: string, rawItems: any[]): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!quotationId) return { ok: false, error: 'Teklif ID zorunludur' }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'Oturum bulunamadı' }
+
+  // Verify ownership
+  const { data: quotation, error: qErr } = await supabase
+    .from('quotations')
+    .select('id, owner_id')
+    .eq('id', quotationId)
+    .maybeSingle()
+  if (qErr) return { ok: false, error: qErr.message }
+  if (!quotation) return { ok: false, error: 'Teklif bulunamadı' }
+
+  // Parse & compute totals
+  const items: any[] = []
+  let subtotal = 0
+  let discountAmount = 0
+  let vatAmount = 0
+
+  for (let i = 0; i < rawItems.length; i++) {
+    const parsed = ItemSchema.safeParse(rawItems[i])
+    if (!parsed.success) {
+      return { ok: false, error: `Satır ${i + 1}: ${parsed.error.issues[0]?.message || 'geçersiz'}` }
+    }
+    const it = parsed.data
+    if (!it.description || it.quantity <= 0) {
+      // Skip empty rows
+      continue
+    }
+    const gross = it.quantity * it.unit_price
+    const disc  = gross * (it.discount_rate / 100)
+    const net   = gross - disc
+    const vat   = net * (it.vat_rate / 100)
+
+    subtotal      += gross
+    discountAmount += disc
+    vatAmount      += vat
+
+    items.push({
+      owner_id: user.id,
+      quotation_id: quotationId,
+      product_id: it.product_id || null,
+      position: i,
+      product_code: it.product_code || null,
+      description: it.description,
+      unit: it.unit,
+      quantity: it.quantity,
+      unit_price: it.unit_price,
+      discount_rate: it.discount_rate,
+      vat_rate: it.vat_rate,
+      line_total: round2(net),
+    })
+  }
+
+  const total = subtotal - discountAmount + vatAmount
+
+  // Replace items: delete all + insert new
+  const { error: delErr } = await supabase
+    .from('quotation_items')
+    .delete()
+    .eq('quotation_id', quotationId)
+  if (delErr) return { ok: false, error: delErr.message }
+
+  if (items.length > 0) {
+    const { error: insErr } = await supabase.from('quotation_items').insert(items)
+    if (insErr) return { ok: false, error: insErr.message }
+  }
+
+  // Update quotation totals
+  const { error: updErr } = await supabase
+    .from('quotations')
+    .update({
+      subtotal: round2(subtotal),
+      discount_amount: round2(discountAmount),
+      vat_amount: round2(vatAmount),
+      total: round2(total),
+    })
+    .eq('id', quotationId)
+  if (updErr) return { ok: false, error: updErr.message }
+
+  revalidatePath('/teklifler')
+  revalidatePath(`/teklifler/${quotationId}`)
   return { ok: true }
 }
