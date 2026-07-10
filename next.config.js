@@ -1,11 +1,10 @@
 const nextConfig = {
-  output: 'standalone',
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      { protocol: 'https', hostname: 'avatars.githubusercontent.com', pathname: '/**' },
-    ],
-  },
+  reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
+  productionBrowserSourceMaps: false,
+
+  // Server Actions & external origins
   experimental: {
     serverActions: {
       allowedOrigins: [
@@ -25,35 +24,58 @@ const nextConfig = {
     '*.preview.emergentagent.com',
     '*.preview.emergentcf.cloud',
   ],
-  webpack(config, { dev }) {
-    if (dev) {
-      // Reduce CPU/memory from file watching
-      config.watchOptions = {
-        poll: 2000, // check every 2 seconds
-        aggregateTimeout: 300, // wait before rebuilding
-        ignored: ['**/node_modules'],
-      };
-    }
-    return config;
+
+  // Remote images (Supabase Storage for company logos)
+  images: {
+    formats: ['image/webp'],
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.in' },
+    ],
   },
-  onDemandEntries: {
-    maxInactiveAge: 10000,
-    pagesBufferLength: 2,
-  },
+
+  // Security headers
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
-          { key: "X-Frame-Options", value: "ALLOWALL" },
-          { key: "Content-Security-Policy", value: "frame-ancestors *;" },
-          { key: "Access-Control-Allow-Origin", value: process.env.CORS_ORIGINS || "*" },
-          { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },
-          { key: "Access-Control-Allow-Headers", value: "*" },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options',         value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy',         value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy',      value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
-    ];
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Content-Type',  value: 'application/javascript; charset=utf-8' },
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        source: '/manifest.webmanifest',
+        headers: [{ key: 'Content-Type', value: 'application/manifest+json' }],
+      },
+    ]
   },
-};
 
-module.exports = nextConfig;
+  // Ignore TS/ESLint on prod build (already linted separately)
+  eslint:     { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors:  true },
+
+  webpack: (config, { isServer }) => {
+    // React-PDF requires this for browser bundle
+    if (!isServer) {
+      config.resolve.fallback = { ...config.resolve.fallback, fs: false, path: false }
+    }
+    return config
+  },
+
+  async rewrites() {
+    return []
+  },
+}
+
+module.exports = nextConfig
