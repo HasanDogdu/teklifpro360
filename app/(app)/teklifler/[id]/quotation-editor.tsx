@@ -118,6 +118,14 @@ export function QuotationEditor({ quotation, initialItems, products, customer, c
   }, [rows])
 
   function handleSave() {
+    // Warn about empty/invalid rows before saving
+    const emptyRows = rows.filter((r) => !r.description?.trim() || r.quantity <= 0)
+    if (emptyRows.length > 0) {
+      toast.warning(`${emptyRows.length} satır kaydedilmeyecek`, {
+        description: 'Boş açıklama veya sıfır miktarlı satırlar atlanacak.',
+      })
+    }
+
     startTransition(async () => {
       const res = await saveQuotationItems(
         quotation.id,

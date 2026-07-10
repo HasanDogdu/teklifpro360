@@ -26,5 +26,15 @@ export function fmtDate(v: string | null | undefined) {
 }
 
 export function safeFilename(s: string) {
-  return s.replace(/[^a-zA-Z0-9\-_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+  // Turkish transliteration table
+  const map: Record<string, string> = {
+    'ğ': 'g', 'Ğ': 'G',
+    'ı': 'i', 'İ': 'I',
+    'ş': 's', 'Ş': 'S',
+    'ç': 'c', 'Ç': 'C',
+    'ö': 'o', 'Ö': 'O',
+    'ü': 'u', 'Ü': 'U',
+  }
+  const transliterated = s.split('').map((ch) => map[ch] ?? ch).join('')
+  return transliterated.replace(/[^a-zA-Z0-9\-_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
 }

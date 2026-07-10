@@ -150,6 +150,7 @@ export function QuotationsView({ quotations, customers, setupError, loadError }:
                     <TableHead className="font-semibold">Müşteri</TableHead>
                     <TableHead className="font-semibold hidden md:table-cell">Teklif Tarihi</TableHead>
                     <TableHead className="font-semibold hidden lg:table-cell">Geçerlilik</TableHead>
+                    <TableHead className="font-semibold text-right hidden sm:table-cell">Tutar</TableHead>
                     <TableHead className="font-semibold text-center">Durum</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
@@ -199,6 +200,9 @@ export function QuotationsView({ quotations, customers, setupError, loadError }:
                             ) : (
                               <span className="text-xs text-muted-foreground">—</span>
                             )}
+                          </TableCell>
+                          <TableCell className="text-right hidden sm:table-cell">
+                            <div className="font-semibold tabular-nums">{formatCurrency(Number(q.total), q.currency)}</div>
                           </TableCell>
                           <TableCell className="text-center">
                             <Badge variant="outline" className={`${meta.class} font-medium`}>
@@ -279,6 +283,15 @@ function formatDate(v: string | null | undefined) {
   try {
     return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(v))
   } catch { return v }
+}
+
+function formatCurrency(v: number, currency: string) {
+  try {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency', currency: currency || 'TRY',
+      minimumFractionDigits: 2, maximumFractionDigits: 2,
+    }).format(v || 0)
+  } catch { return String(v) }
 }
 
 function Header({ count, onAdd }: { count: number; onAdd: () => void }) {

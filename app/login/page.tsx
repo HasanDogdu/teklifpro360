@@ -88,10 +88,7 @@ export default function LoginPage() {
                     <Input id="login-email" name="email" type="email" placeholder="ornek@firma.com" required autoComplete="email" className="h-11" />
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="login-password">Şifre</Label>
-                      <a href="#" className="text-xs text-primary hover:underline">Şifremi unuttum</a>
-                    </div>
+                    <Label htmlFor="login-password">Şifre</Label>
                     <Input id="login-password" name="password" type="password" required autoComplete="current-password" className="h-11" />
                   </div>
                   {loginState?.error && (
