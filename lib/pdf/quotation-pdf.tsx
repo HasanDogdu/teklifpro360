@@ -43,17 +43,17 @@ const styles = StyleSheet.create({
 
   // Header
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  companyBlock: { flexDirection: 'row', gap: 12, maxWidth: '60%' },
-  logo: { width: 60, height: 60, objectFit: 'contain' },
-  companyTitle: { fontSize: 14, fontWeight: 700, color: COLORS.text, marginBottom: 3 },
+  companyBlock: { flexDirection: 'row', gap: 12, maxWidth: '72%' },
+  logo: { width: 110, height: 110, objectFit: 'contain' },
+  companyTitle: { fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 3 },
   companyMeta: { fontSize: 8.5, color: COLORS.muted, lineHeight: 1.45 },
   quoteBox: {
     borderWidth: 1, borderColor: COLORS.primary, borderRadius: 6,
-    paddingVertical: 8, paddingHorizontal: 12, minWidth: 180,
+    paddingVertical: 5, paddingHorizontal: 8, minWidth: 115,
     backgroundColor: COLORS.primaryLight,
   },
   quoteBoxLabel: { fontSize: 8, textTransform: 'uppercase', letterSpacing: 0.6, color: COLORS.primary, fontWeight: 700, marginBottom: 2 },
-  quoteNumber: { fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 6, letterSpacing: 0.3 },
+  quoteNumber: { fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 6, letterSpacing: 0.3 },
   quoteMetaRow: { flexDirection: 'row', justifyContent: 'space-between', fontSize: 8.5, marginBottom: 2 },
   quoteMetaLabel: { color: COLORS.muted },
   quoteMetaValue: { fontWeight: 500 },
