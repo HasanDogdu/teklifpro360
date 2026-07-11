@@ -41,8 +41,9 @@ const DEFAULTS = {
   address: '',
   city: '',
   district: '',
-  iban: '',
-  default_currency: 'TRY' as Currency,
+bank_name: '',
+iban: '',
+default_currency: 'TRY' as Currency,
   default_vat_rate: 20,
   default_payment_terms: 'Teslimat sonrası 15 gün içinde havale/EFT.',
   default_validity_days: 30,
@@ -202,25 +203,52 @@ export function SettingsView({ initialSettings, setupError, loadError }: Props) 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Vergi Dairesi">
-                  <Input value={form.tax_office} onChange={(e) => setField('tax_office', e.target.value)} placeholder="Örn. Kadıköy" />
-                </Field>
-                <Field label="Vergi Numarası">
-                  <Input value={form.tax_number} onChange={(e) => setField('tax_number', e.target.value)} placeholder="1234567890" inputMode="numeric" />
-                </Field>
-                <Field label="Ticaret Sicil No">
-  <Input
-    value={form.registry_number}
-    onChange={(e) => setField('registry_number', e.target.value)}
-    placeholder="Örn. 123456"
-  />
-</Field>
-                <div className="md:col-span-2">
-                  <Field label="IBAN" icon={CreditCard}>
-                    <Input value={form.iban} onChange={(e) => setField('iban', e.target.value.toUpperCase())} placeholder="TR00 0000 0000 0000 0000 0000 00" className="font-mono" />
-                  </Field>
-                </div>
-              </div>
+  <Field label="Vergi Dairesi">
+    <Input
+      value={form.tax_office}
+      onChange={(e) => setField('tax_office', e.target.value)}
+      placeholder="Örn. Kadıköy"
+    />
+  </Field>
+
+  <Field label="Vergi Numarası">
+    <Input
+      value={form.tax_number}
+      onChange={(e) => setField('tax_number', e.target.value)}
+      placeholder="1234567890"
+      inputMode="numeric"
+    />
+  </Field>
+
+  <Field label="Ticaret Sicil No">
+    <Input
+      value={form.registry_number}
+      onChange={(e) => setField('registry_number', e.target.value)}
+      placeholder="Örn. 123456"
+    />
+  </Field>
+
+  <Field label="Banka Adı">
+    <Input
+      value={form.bank_name}
+      onChange={(e) => setField('bank_name', e.target.value)}
+      placeholder="Örn. Türkiye İş Bankası"
+    />
+  </Field>
+
+  <div className="md:col-span-2">
+    <Field label="IBAN" icon={CreditCard}>
+      <Input
+        value={form.iban}
+        onChange={(e) =>
+          setField('iban', e.target.value.toUpperCase())
+        }
+        placeholder="TR00 0000 0000 0000 0000 0000 00"
+        className="font-mono"
+      />
+    </Field>
+  </div>
+</div>
             </CardContent>
           </Card>
 
@@ -407,8 +435,9 @@ registry_number: (s as any).registry_number ?? '',
 address: s.address ?? '',
     city: s.city ?? '',
     district: s.district ?? '',
-    iban: s.iban ?? '',
-    default_currency: s.default_currency,
+bank_name: s.bank_name ?? '',
+iban: s.iban ?? '',
+default_currency: s.default_currency,
     default_vat_rate: s.default_vat_rate,
     default_payment_terms: s.default_payment_terms ?? '',
     default_validity_days: s.default_validity_days,
