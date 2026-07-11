@@ -37,6 +37,7 @@ const DEFAULTS = {
   website: '',
   tax_office: '',
   tax_number: '',
+  registry_number: '',
   address: '',
   city: '',
   district: '',
@@ -207,6 +208,13 @@ export function SettingsView({ initialSettings, setupError, loadError }: Props) 
                 <Field label="Vergi Numarası">
                   <Input value={form.tax_number} onChange={(e) => setField('tax_number', e.target.value)} placeholder="1234567890" inputMode="numeric" />
                 </Field>
+                <Field label="Ticaret Sicil No">
+  <Input
+    value={form.registry_number}
+    onChange={(e) => setField('registry_number', e.target.value)}
+    placeholder="Örn. 123456"
+  />
+</Field>
                 <div className="md:col-span-2">
                   <Field label="IBAN" icon={CreditCard}>
                     <Input value={form.iban} onChange={(e) => setField('iban', e.target.value.toUpperCase())} placeholder="TR00 0000 0000 0000 0000 0000 00" className="font-mono" />
@@ -394,8 +402,9 @@ function hydrate(s: CompanySettings | null) {
     email: s.email ?? '',
     website: s.website ?? '',
     tax_office: s.tax_office ?? '',
-    tax_number: s.tax_number ?? '',
-    address: s.address ?? '',
+tax_number: s.tax_number ?? '',
+registry_number: (s as any).registry_number ?? '',
+address: s.address ?? '',
     city: s.city ?? '',
     district: s.district ?? '',
     iban: s.iban ?? '',
