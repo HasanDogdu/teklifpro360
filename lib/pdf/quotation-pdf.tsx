@@ -393,12 +393,29 @@ export function QuotationPDF({ quotation, items, company, customer }: Props) {
                 <Text style={{ ...styles.notesText, marginBottom: 6 }}>{quotation.payment_terms}</Text>
               </>
             )}
-            {c?.iban && (
-              <>
-                <Text style={styles.notesLabel}>Hesap Bilgileri (IBAN)</Text>
-                <Text style={{ ...styles.notesText, fontFamily: 'Courier', marginBottom: 6 }}>{c.iban}</Text>
-              </>
-            )}
+            {(c?.bank_name || c?.iban) && (
+  <>
+    <Text style={styles.notesLabel}>Banka / Hesap Bilgileri</Text>
+
+    {c?.bank_name && (
+      <Text style={{ ...styles.notesText, marginBottom: 2 }}>
+        Banka: {c.bank_name}
+      </Text>
+    )}
+
+    {c?.iban && (
+      <Text
+        style={{
+          ...styles.notesText,
+          fontFamily: 'Courier',
+          marginBottom: 6,
+        }}
+      >
+        IBAN: {c.iban}
+      </Text>
+    )}
+  </>
+)}
             {quotation.footer_notes && (
               <>
                 <Text style={styles.notesLabel}>Notlar</Text>
