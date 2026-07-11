@@ -43,20 +43,29 @@ const styles = StyleSheet.create({
 
   // Header
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  companyBlock: { flexDirection: 'row', gap: 12, maxWidth: '72%' },
-  logo: { width: 110, height: 110, objectFit: 'contain' },
-  companyTitle: { fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 3 },
-  companyMeta: { fontSize: 8.5, color: COLORS.muted, lineHeight: 1.45 },
+  companyBlock: { flexDirection: 'row', paddingRight: 12, maxWidth: '72%' },
+  logo: { width: 110, height: 110, objectFit: 'contain',marginRight: 14, },
+  companyInfo:{ flex:1,},
+  companyTitle: {fontSize: 15,fontWeight: 700,color: COLORS.text, marginBottom: 7,},
+  companyMeta: {fontSize: 8.3,color: COLORS.muted,lineHeight: 1.35,marginBottom: 2,},
+  companyMetaStrong: {fontSize: 8.3,color: COLORS.text,fontWeight: 500,lineHeight: 1.35,marginBottom: 2,},
   quoteBox: {
-    borderWidth: 1, borderColor: COLORS.primary, borderRadius: 6,
-    paddingVertical: 5, paddingHorizontal: 8, minWidth: 115,
-    backgroundColor: COLORS.primaryLight,
-  },
-  quoteBoxLabel: { fontSize: 8, textTransform: 'uppercase', letterSpacing: 0.6, color: COLORS.primary, fontWeight: 700, marginBottom: 2 },
-  quoteNumber: { fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 6, letterSpacing: 0.3 },
-  quoteMetaRow: { flexDirection: 'row', justifyContent: 'space-between', fontSize: 8.5, marginBottom: 2 },
-  quoteMetaLabel: { color: COLORS.muted },
-  quoteMetaValue: { fontWeight: 500 },
+  width: 132,
+  borderWidth: 1,
+  borderColor: COLORS.primary,
+  borderRadius: 6,
+  paddingVertical: 6,
+  paddingHorizontal: 8,
+  backgroundColor: COLORS.primaryLight,
+
+  // Teklif kutusunu firma adının yaklaşık iki satır altına indirir
+  marginTop: 34,
+},
+  quoteBoxLabel: {fontSize: 7,textTransform: 'uppercase',letterSpacing: 0.4,color: COLORS.primary,fontWeight: 700, marginBottom: 2,},
+ quoteNumber: {fontSize: 13,fontWeight: 700,color: COLORS.primary, marginBottom: 5,},
+  quoteMetaRow: {flexDirection: 'row',justifyContent: 'space-between',fontSize: 7.3, marginBottom: 2,},
+  quoteMetaLabel: {color: COLORS.muted,},
+  quoteMetaValue: {fontWeight: 500,},
 
   // Divider
   divider: { borderBottomWidth: 1, borderBottomColor: COLORS.border, marginVertical: 10 },
@@ -156,27 +165,72 @@ export function QuotationPDF({ quotation, items, company, customer }: Props) {
         {/* ============= HEADER ============= */}
         <View style={styles.header} fixed>
           <View style={styles.companyBlock}>
-            {showLogo && (
-              <Image src={{ uri: c!.logo_url!, method: 'GET', body: '', headers: {} }} style={styles.logo} />
-            )}
-            <View>
-              <Text style={styles.companyTitle}>{c?.company_name || 'Firma Adı'}</Text>
-              <Text style={styles.companyMeta}>
-                {[c?.address, [c?.district, c?.city].filter(Boolean).join(' / ')].filter(Boolean).join('\n')}
-              </Text>
-              {(c?.phone || c?.email) && (
-                <Text style={styles.companyMeta}>
-                  {[c?.phone, c?.email].filter(Boolean).join(' • ')}
-                </Text>
-              )}
-              {c?.website && <Text style={styles.companyMeta}>{c.website}</Text>}
-              {(c?.tax_office || c?.tax_number) && (
-                <Text style={styles.companyMeta}>
-                  {[c?.tax_office && `${c.tax_office} VD.`, c?.tax_number].filter(Boolean).join(' • ')}
-                </Text>
-              )}
-            </View>
-          </View>
+  {showLogo && (
+    <Image
+      src={{
+        uri: c!.logo_url!,
+        method: 'GET',
+        body: '',
+        headers: {},
+      }}
+      style={styles.logo}
+    />
+  )}
+
+  <View style={styles.companyInfo}>
+    <Text style={styles.companyTitle}>
+      {c?.company_name || 'Firma Adı'}
+    </Text>
+
+    {c?.address && (
+      <Text style={styles.companyMeta}>
+        {c.address}
+      </Text>
+    )}
+
+    {(c?.district || c?.city) && (
+      <Text style={styles.companyMeta}>
+        {[c?.district, c?.city].filter(Boolean).join(' / ')}
+      </Text>
+    )}
+
+    {c?.phone && (
+      <Text style={styles.companyMetaStrong}>
+        Tel: {c.phone}
+      </Text>
+    )}
+
+    {c?.email && (
+      <Text style={styles.companyMeta}>
+        E-posta: {c.email}
+      </Text>
+    )}
+
+    {c?.website && (
+      <Text style={styles.companyMeta}>
+        Web: {c.website}
+      </Text>
+    )}
+
+    {c?.tax_office && (
+      <Text style={styles.companyMeta}>
+        Vergi Dairesi: {c.tax_office}
+      </Text>
+    )}
+
+    {c?.tax_number && (
+      <Text style={styles.companyMeta}>
+        Vergi No: {c.tax_number}
+      </Text>
+    )}
+
+    {(c as any)?.registry_number && (
+      <Text style={styles.companyMeta}>
+        Sicil No: {(c as any).registry_number}
+      </Text>
+    )}
+  </View>
+</View>
 
           <View style={styles.quoteBox}>
             <Text style={styles.quoteBoxLabel}>Teklif Numarası</Text>
