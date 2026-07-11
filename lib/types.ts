@@ -34,8 +34,9 @@ export type CompanySettings = {
   address: string | null
   city: string | null
   district: string | null
-  iban: string | null
-  default_currency: Currency
+bank_name: string | null
+iban: string | null
+default_currency: Currency
   default_vat_rate: number
   default_payment_terms: string | null
   default_validity_days: number
