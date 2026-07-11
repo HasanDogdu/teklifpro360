@@ -18,6 +18,7 @@ Font.register({
     { src: 'https://cdn.jsdelivr.net/npm/@fontsource/roboto@5.0.13/files/roboto-latin-ext-700-normal.woff', fontWeight: 700 },
   ],
 })
+Font.registerHyphenationCallback((word) => [word])
 
 // -------- Styles --------
 const COLORS = {
@@ -42,24 +43,58 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  companyBlock: { flexDirection: 'row', paddingRight: 12, maxWidth: '72%' },
-  logo: { width: 110, height: 110, objectFit: 'contain',marginRight: 14, },
-  companyInfo:{ flex:1,},
-  companyTitle: {fontSize: 15,fontWeight: 700,color: COLORS.text, marginBottom: 7,},
-  companyMeta: {fontSize: 8.3,color: COLORS.muted,lineHeight: 1.35,marginBottom: 2,},
-  companyMetaStrong: {fontSize: 8.3,color: COLORS.text,fontWeight: 500,lineHeight: 1.35,marginBottom: 2,},
+  header: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  marginBottom: 18,
+},
+  companyBlock: {
+  flexDirection: 'row',
+  width: 360,
+  flexShrink: 0,
+},
+  logo: {
+  width: 92,
+  height: 92,
+  objectFit: 'contain',
+  marginRight: 14,
+  flexShrink: 0,
+},
+  companyInfo: {
+  width: 250,
+  flexShrink: 0,
+},
+  companyTitle: {
+  fontSize: 15,
+  lineHeight: 1.15,
+  fontWeight: 700,
+  color: COLORS.text,
+  marginBottom: 6,
+},
+ companyMeta: {
+  fontSize: 8.3,
+  color: COLORS.muted,
+  lineHeight: 1.3,
+  marginBottom: 2,
+},
+  companyMetaStrong: {
+  fontSize: 8.3,
+  color: COLORS.text,
+  fontWeight: 500,
+  lineHeight: 1.3,
+  marginBottom: 2,
+},
   quoteBox: {
   width: 132,
+  flexShrink: 0,
   borderWidth: 1,
   borderColor: COLORS.primary,
   borderRadius: 6,
   paddingVertical: 6,
   paddingHorizontal: 8,
   backgroundColor: COLORS.primaryLight,
-
-  // Teklif kutusunu firma adının yaklaşık iki satır altına indirir
-  marginTop: 34,
+  marginTop: 30,
 },
   quoteBoxLabel: {fontSize: 7,textTransform: 'uppercase',letterSpacing: 0.4,color: COLORS.primary,fontWeight: 700, marginBottom: 2,},
  quoteNumber: {fontSize: 13,fontWeight: 700,color: COLORS.primary, marginBottom: 5,},
@@ -163,8 +198,9 @@ export function QuotationPDF({ quotation, items, company, customer }: Props) {
     >
       <Page size="A4" style={styles.page}>
         {/* ============= HEADER ============= */}
-        <View style={styles.header} fixed>
-          <View style={styles.companyBlock}>
+        <View style={styles.header}>
+          
+<View style={styles.companyBlock}>
   {showLogo && (
     <Image
       src={{
