@@ -43,27 +43,23 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  header: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
+ header: {
+  position: 'relative',
+  minHeight: 122,
   marginBottom: 18,
 },
-  companyBlock: {
+ companyBlock: {
   flexDirection: 'row',
-  width: 360,
-  flexShrink: 0,
+  width: 355,
 },
   logo: {
   width: 92,
   height: 92,
   objectFit: 'contain',
   marginRight: 14,
-  flexShrink: 0,
 },
   companyInfo: {
-  width: 250,
-  flexShrink: 0,
+  width: 245,
 },
   companyTitle: {
   fontSize: 15,
@@ -86,15 +82,17 @@ const styles = StyleSheet.create({
   marginBottom: 2,
 },
   quoteBox: {
+  position: 'absolute',
+  right: 0,
+  top: 30,
   width: 132,
-  flexShrink: 0,
+
   borderWidth: 1,
   borderColor: COLORS.primary,
   borderRadius: 6,
   paddingVertical: 6,
   paddingHorizontal: 8,
   backgroundColor: COLORS.primaryLight,
-  marginTop: 30,
 },
   quoteBoxLabel: {fontSize: 7,textTransform: 'uppercase',letterSpacing: 0.4,color: COLORS.primary,fontWeight: 700, marginBottom: 2,},
  quoteNumber: {fontSize: 13,fontWeight: 700,color: COLORS.primary, marginBottom: 5,},
