@@ -5,9 +5,10 @@ export type Customer = {
   contact_name: string | null
   phone: string | null
   email: string | null
-  tax_office: string | null
-  tax_number: string | null
-  address: string | null
+ tax_office: string | null
+tax_number: string | null
+registry_number: string | null
+address: string | null
   city: string | null
   district: string | null
   notes: string | null
